@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": "6a08",
+      "item": "1",
+      "checked": true
+    },
+    {
+      "item": "5555",
+      "checked": true,
+      "id": "27fa"
+    },
+    {
+      "id": "4e53",
+      "item": "4",
+      "checked": false
+    },
+    {
+      "item": "5",
+      "checked": false,
+      "id": "56bb"
+    },
+    {
+      "item": "6",
+      "checked": false,
+      "id": "6c2d"
+    }
+  ]
+}
