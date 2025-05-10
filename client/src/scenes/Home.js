@@ -10,20 +10,20 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [editingTaskId, setEditingTaskId] = useState(null);
     const [editedText, setEditedText] = useState('');
-    const inputRef = useRef(null);
+    const inputElement = useRef(null);
+
+    const fetchItems = async () => {
+        try {
+            const res = await fetch('http://localhost:8000/items');
+            const data = await res.json();
+            setItems(data); 
+        } catch (e) {
+            console.log("Error fetching: ", e.message);
+        }   
+    }
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await fetch('http://localhost:8000/items');
-                const data = await res.json();
-                setItems(data);          
-            } catch (e) {
-                console.log(e.message);
-            }    
-        }
-
-        fetchData();
+        fetchItems();
     }, []);
 
     useEffect(() => {
@@ -44,20 +44,20 @@ const Home = () => {
     }, [items, searchQuery, isSorted])
 
     useEffect(() => {
-        inputRef.current?.focus();
+        inputElement.current?.focus();
     }, [editingTaskId])
 
     const startEditing = (id) => {
-        const item = items.find(i => i.id === id);
-        setEditingTaskId(item.id);
-        setEditedText(item.item);
+        const editingItem = items.find(i => i._id === id);
+        setEditingTaskId(editingItem._id);
+        setEditedText(editingItem.item);
     }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
-            const res = await fetch('http://localhost:8000/items', {
+            const res = await fetch(`http://localhost:8000/items`, {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ item, checked: false })
@@ -73,45 +73,40 @@ const Home = () => {
     }
 
     const toggleItem = async (id) => {
-        const updatedItems = items.map(i =>
-            i.id === id ? { ...i, checked: !i.checked } : i
-        );
-        setItems(updatedItems);
-
-        const toggledItem = updatedItems.find(i => i.id === id);
+        const toggledItem = items.find(i => i._id === id);
 
         try {
             await fetch(`http://localhost:8000/items/${id}`, {
                 method: 'PATCH',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ checked: toggledItem.checked })
+                body: JSON.stringify({ checked: !toggledItem.checked })
             });
         } catch (e) {
             console.log(e.message);
         }
+
+        await fetchItems();
     }
 
     const handleClear = async () => {
 
         if(!window.confirm("Are you sure you want to clear the entire list?")) return;
 
-        for (const item of items) {
-            await fetch(`http://localhost:8000/items/${item.id}`, {
-                method: 'DELETE'
-            })
-        }
+        await fetch(`http://localhost:8000/items`, {
+            method: 'DELETE'
+        })
 
         setItems([]);
         setItem('');
     }
 
     const saveEdit = async (id) => {
-        const item = items.find(i => i.id === id);
+        const currentItem = items.find(i => i._id === id);
         try {
-            const res = await fetch(`http://localhost:8000/items/${item.id}`, {
-                method: 'PUT',
+            const res = await fetch(`http://localhost:8000/items/${id}`, {
+                method: 'PATCH',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ item: editedText, checked: item.checked })
+                body: JSON.stringify({ item: editedText, checked: currentItem.checked })
             });
 
             if (!res.ok) {
@@ -119,7 +114,7 @@ const Home = () => {
             }
 
             const updatedItem = await res.json();
-            setItems(prev => prev.map(item => (item.id === id ? { ...item, ...updatedItem} : item)))
+            setItems(prev => prev.map(i => (i._id === id ? { ...i, ...updatedItem} : i)))
 
         } catch (e) {
             console.log(e.message);
@@ -133,6 +128,18 @@ const Home = () => {
     const cancelEdit = () => {
         setEditedText('');
         setEditingTaskId(null);
+    }
+
+    const deleteItem = (id) => {
+        try {
+            fetch(`http://localhost:8000/items/${id}`, {
+                method: 'DELETE'
+            })
+
+            setItems(prev => prev.filter(item => item._id !== id))
+        } catch (e) {
+            console.log("Failed to delete item: ", e.message)
+        }
     }
 
 
@@ -151,16 +158,17 @@ const Home = () => {
 
             {<ItemList 
                 items={ filteredItems } 
-                inputRef={ inputRef }
+                inputElement={ inputElement }
                 editingTaskId={ editingTaskId } 
-                editedText= { editedText } 
+                editedText={ editedText } 
                 handlers={{
                     startEditing,
                     setEditedText, 
                     saveEdit,
                     toggleItem,
-                    cancelEdit} 
-                }
+                    cancelEdit,
+                    deleteItem
+                }}
             />}
 
             <form onSubmit={handleSubmit}>

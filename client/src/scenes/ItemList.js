@@ -1,23 +1,23 @@
-const ItemList = ({ items, editingTaskId, editedText, inputRef, handlers }) => {
-    const { startEditing, setEditedText, saveEdit, toggleItem, cancelEdit } = handlers;
+const ItemList = ({ items, editingTaskId, editedText, inputElement, handlers }) => {
+    const { startEditing, setEditedText, saveEdit, toggleItem, cancelEdit, deleteItem } = handlers;
     return (
         <div className="item-list">
             {items.map((item) => (
-                <div className="item-content" key={ item.id }>
+                <div className="item-content" key={ item._id }>
                         <input 
                             type="checkbox" 
                             checked={ item.checked } 
-                            onChange={ () => toggleItem(item.id) }
+                            onChange={ () => toggleItem(item._id) }
                         />
-                        { editingTaskId === item.id ? (
+                        { editingTaskId === item._id ? (
                             <input 
                                 type="text" 
                                 value={ editedText } 
-                                ref={inputRef}
+                                ref={ inputElement }
                                 onChange={ (e) => setEditedText(e.target.value) }
                                 onKeyDown={ (e) => {
                                     if (e.key === 'Enter') {
-                                        saveEdit(item.id);
+                                        saveEdit(item._id);
                                     }
                                     else if (e.key === 'Escape') {
                                         cancelEdit();
@@ -26,10 +26,11 @@ const ItemList = ({ items, editingTaskId, editedText, inputRef, handlers }) => {
                             />
                         )
                         : (
-                            <span onDoubleClick={ () => startEditing(item.id) }>
+                            <span onDoubleClick={ () => startEditing(item._id) }>
                                 { item.item }
                             </span>
                     )}
+                    <input type="image" src="/trashIcon.png" alt="delete" style={{ width: "20px", height: "20px"}} onClick={() => deleteItem(item._id)} />
                 </div>
             ))}
         </div>
