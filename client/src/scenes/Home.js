@@ -10,6 +10,7 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [editingTaskId, setEditingTaskId] = useState(null);
     const [editedText, setEditedText] = useState('');
+    const [lastDeletedItem, setLastDeletedItem] = useState(null);
     const inputElement = useRef(null);
 
     const fetchItems = async () => {
@@ -130,19 +131,39 @@ const Home = () => {
         setEditingTaskId(null);
     }
 
-    const deleteItem = (id) => {
+    const deleteItem = async (id) => {
         try {
-            fetch(`http://localhost:8000/items/${id}`, {
+            const res = await fetch(`http://localhost:8000/items/${id}`, {
                 method: 'DELETE'
-            })
-
+            })  
+            const deletedItem = await res.json()
+            setLastDeletedItem(deletedItem);
             setItems(prev => prev.filter(item => item._id !== id))
         } catch (e) {
             console.log("Failed to delete item: ", e.message)
         }
     }
 
+    const handleUndo = async () => {
+        if (lastDeletedItem === null) return;
+        const updatedItems = [...items, lastDeletedItem];
+        setItems(updatedItems)
+        setLastDeletedItem(null);
 
+        try {
+            await fetch(`http://localhost:8000/items`, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    _id: lastDeletedItem._id,
+                    item: lastDeletedItem.item,
+                    checked: lastDeletedItem.checked 
+                })
+            });
+        } catch (e) {
+            console.log('Failed to undo message: ', e.message);
+        }
+    }
 
     return (
         <div className="to-do-list">
@@ -163,6 +184,7 @@ const Home = () => {
                 editedText={ editedText } 
                 handlers={{
                     startEditing,
+                    setItems,
                     setEditedText, 
                     saveEdit,
                     toggleItem,
@@ -181,7 +203,7 @@ const Home = () => {
                 <button>Add</button>
             </form>
             <button onClick={ handleClear }>Clear</button>
-
+            <button onClick={ handleUndo }>Undo Delete</button>
         </div>
     );
 };
