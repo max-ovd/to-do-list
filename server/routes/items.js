@@ -32,13 +32,13 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.get('/:userId', async (req, res) => {
-    const item = await Item.findById(req.params.userId)
+router.get('/:itemId', async (req, res) => {
+    const item = await Item.findById(req.params.itemId)
     res.status(200).json(item)
 })
 
-router.patch('/:userId', async (req, res) => {
-    const id = req.params.userId
+router.patch('/:itemId', async (req, res) => {
+    const id = req.params.itemId
     const updates = req.body
     try {
         const updatedItem = await Item.findOneAndUpdate({_id: id}, {$set: updates}, {new: true})
@@ -57,8 +57,8 @@ router.delete('', async (req, res) => {
     }
 })
 
-router.delete('/:userId', async (req, res) => {
-    const id = req.params.userId
+router.delete('/:itemId', async (req, res) => {
+    const id = req.params.itemId
     const deletedItem = await Item.findById(id);
     try {
         await Item.deleteOne({_id: id})
