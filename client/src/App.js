@@ -5,6 +5,7 @@ import NotFound from './scenes/NotFound';
 import Register from './scenes/Register';
 
 function App() {
+
   return (
     <Router>
       <div className="app">

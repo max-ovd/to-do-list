@@ -1,5 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import ItemList from "./ItemList";
+import { useAuth } from "../AuthContext";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
+import api from '../lib/axiosClient.js' 
 
 const Home = () => {
 
@@ -12,11 +16,22 @@ const Home = () => {
     const [editedText, setEditedText] = useState('');
     const [lastDeletedItem, setLastDeletedItem] = useState(null);
     const inputElement = useRef(null);
+    const navigate = useNavigate();
+    const { user, loading } = useAuth();
+
+
+    useEffect(() => {
+        if (!user && !loading) {
+            navigate('/login');
+        }
+    }, [user, loading, navigate])
+
 
     const fetchItems = async () => {
         try {
-            const res = await fetch('http://localhost:8000/items');
-            const data = await res.json();
+            const res = await api.get('/items');
+            console.log(res);
+            const data = res.data;
             setItems(data); 
         } catch (e) {
             console.log("Error fetching: ", e.message);
@@ -58,13 +73,12 @@ const Home = () => {
         event.preventDefault();
 
         try {
-            const res = await fetch(`http://localhost:8000/items`, {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ item, checked: false })
+            const res = await api.post('/items', {
+                item, 
+                checked: false
             });
 
-            const newItem = await res.json();
+            const newItem = res.data;
             setItems(prev => [...prev, newItem]);
             setItem('');
 
@@ -77,25 +91,25 @@ const Home = () => {
         const toggledItem = items.find(i => i._id === id);
 
         try {
-            await fetch(`http://localhost:8000/items/${id}`, {
-                method: 'PATCH',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ checked: !toggledItem.checked })
-            });
+            await api.patch(`/items/${id}`, {
+                checked: !toggledItem.checked
+            })
         } catch (e) {
             console.log(e.message);
         }
 
-        await fetchItems();
+        setItems(prev =>
+            prev.map(i =>
+                i._id === id ? { ...i, checked: !i.checked } : i
+            )
+        )
     }
 
     const handleClear = async () => {
 
         if(!window.confirm("Are you sure you want to clear the entire list?")) return;
 
-        await fetch(`http://localhost:8000/items`, {
-            method: 'DELETE'
-        })
+        await api.delete('/items')
 
         setItems([]);
         setItem('');
@@ -104,17 +118,16 @@ const Home = () => {
     const saveEdit = async (id) => {
         const currentItem = items.find(i => i._id === id);
         try {
-            const res = await fetch(`http://localhost:8000/items/${id}`, {
-                method: 'PATCH',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ item: editedText, checked: currentItem.checked })
-            });
+            const res = await api.patch(`/items/${id}`, {
+                item: editedText,
+                checked: currentItem.checked 
+            })
 
-            if (!res.ok) {
+            if (res.status !== 200) {
                 throw new Error('There was an error saving your edit');
             }
 
-            const updatedItem = await res.json();
+            const updatedItem = res.data;
             setItems(prev => prev.map(i => (i._id === id ? { ...i, ...updatedItem} : i)))
 
         } catch (e) {
@@ -133,10 +146,9 @@ const Home = () => {
 
     const deleteItem = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/items/${id}`, {
-                method: 'DELETE'
-            })  
-            const deletedItem = await res.json()
+            const res = await api.delete(`/items/${id}`);
+
+            const deletedItem = res.data
             setLastDeletedItem(deletedItem);
             setItems(prev => prev.filter(item => item._id !== id))
         } catch (e) {
@@ -151,15 +163,12 @@ const Home = () => {
         setLastDeletedItem(null);
 
         try {
-            await fetch(`http://localhost:8000/items`, {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    _id: lastDeletedItem._id,
-                    item: lastDeletedItem.item,
-                    checked: lastDeletedItem.checked 
-                })
-            });
+            await api.post('/items', {
+                _id: lastDeletedItem.id,
+                item: lastDeletedItem.item,
+                checked: lastDeletedItem.checked
+            })
+            
         } catch (e) {
             console.log('Failed to undo message: ', e.message);
         }
@@ -204,6 +213,7 @@ const Home = () => {
             </form>
             <button onClick={ handleClear }>Clear</button>
             <button onClick={ handleUndo }>Undo Delete</button>
+            <button onClick={ async () => await supabase.auth.signOut()}>Log Out</button>
         </div>
     );
 };

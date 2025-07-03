@@ -1,7 +1,6 @@
 import { ReactSortable } from 'react-sortablejs';
 
 
-
 const ItemList = ({ items, editingTaskId, editedText, inputElement, handlers }) => {
     const { startEditing, setItems, setEditedText, saveEdit, toggleItem, cancelEdit, deleteItem } = handlers;
 

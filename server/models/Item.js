@@ -4,6 +4,7 @@ const ItemSchema = new mongoose.Schema(
     {
         item: String,
         checked: Boolean,
+        userId: String,
         id: String
     }, { versionKey: false }
 )

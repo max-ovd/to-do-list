@@ -1,13 +1,10 @@
 import items from './data/itemData.js'
-import users from './data/userData.js'
 import express from 'express'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import itemRoutes from './routes/items.js'
-import userRoutes from './routes/users.js'
-import User from './models/User.js'
 import Item from './models/Item.js'
 
 dotenv.config()
@@ -17,7 +14,6 @@ app.use(bodyParser.json())
 const PORT = process.env.PORT
 
 app.use('/items', itemRoutes);
-app.use('/users', userRoutes);
 
 mongoose
     .connect(process.env.MONGO_URL)

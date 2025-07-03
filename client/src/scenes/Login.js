@@ -1,16 +1,27 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient.js";
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("form submitted");
-        console.log("email: ", email);
-        console.log("password: ", password);
-        setEmail('');
-        setPassword('');
+        console.log("submitted login")
+        console.log(email, password);
+
+        try {
+            const { data: { session }, error } = await supabase.auth.signInWithPassword({ email, password });
+            console.log(session, error);
+            if (error) alert(error.message);
+            else alert("YAY IT WORKED");
+            navigate('/');
+        } catch (e) {
+            console.log("Failed to log in: ", e.message);
+        }
     }
 
     return (

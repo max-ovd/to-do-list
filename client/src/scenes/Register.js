@@ -1,30 +1,29 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("form submitted");
-        console.log("email: ", email);
-        console.log("password: ", password);
 
         try {
-            const res = await fetch(`http://localhost:8000/users`, {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email, password: password })
-            });
-
-            // send user to homepage
+            const signup = async () => {
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) alert(error.message);
+                else {
+                    alert("YAY IT WORKED");
+                    navigate('/');
+                }
+            }
+            signup();
 
         } catch {
             console.log("")
         }
-
-        setEmail('');
-        setPassword('');
     }
 
     return (
