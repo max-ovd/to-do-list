@@ -15,14 +15,13 @@
     "react-router-dom": "^7.6.0",
     "react-scripts": "5.0.1",
     "react-sortablejs": "^6.1.4",
+    "serve": "^14.2.4",
     "sortablejs": "^1.15.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "serve -s start",
+    "build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -41,5 +40,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max-ovd/to-do-list.git"
+  },
+  "author": "max ovdiyenko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/max-ovd/to-do-list/issues"
+  },
+  "homepage": "https://github.com/max-ovd/to-do-list#readme"
 }

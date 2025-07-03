@@ -2,14 +2,14 @@
   "name": "server",
   "type": "module",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "devStart": "nodemon server.js"
+    "devStart": "nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@supabase/ssr": "github:supabase/ssr",
     "@supabase/supabase-js": "^2.50.3",
@@ -18,5 +18,14 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max-ocd/to-do-list.git"
+  },
+  "bugs": {
+    "url": "https://github.com/max-ocd/to-do-list/issues"
+  },
+  "homepage": "https://github.com/max-ocd/to-do-list#readme",
+  "description": ""
 }
