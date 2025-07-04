@@ -12,10 +12,7 @@ const Register = () => {
 
         try {
             const error = await supabase.auth.signUp({ email, password })[2];
-            if (error.status === 422) {
-                console.log("Email already in use");
-            }
-            else if (error) alert(error.message);
+            if (error) alert(error.message);
             else {
                 alert("Thank you for registering");
                 navigate('/');
