@@ -8,7 +8,6 @@ api.interceptors.request.use(async (config) => {
     const token = session?.access_token;
 
     if (token) {
-        config.baseURL = 'http://localhost:8000'
         config.headers.Authorization = `Bearer ${token}`;
     }
 
