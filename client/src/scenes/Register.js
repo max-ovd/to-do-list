@@ -11,18 +11,14 @@ const Register = () => {
         e.preventDefault();
 
         try {
-            const signup = async () => {
-                const error = await supabase.auth.signUp({ email, password })[1];
-                if (error) alert(error.message);
-                else {
-                    alert("YAY IT WORKED");
-                    navigate('/');
-                }
+            const error = await supabase.auth.signUp({ email, password })[1];
+            if (error) alert(error.message);
+            else {
+                alert("Thank you for registering");
+                navigate('/');
             }
-            signup();
-
-        } catch {
-            console.log("")
+        } catch (e) {
+            console.log("there was an error registering", e.message);
         }
     }
 
