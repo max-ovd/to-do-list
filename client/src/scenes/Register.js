@@ -12,7 +12,7 @@ const Register = () => {
 
         try {
             const signup = async () => {
-                const { data, error } = await supabase.auth.signUp({ email, password });
+                const error = await supabase.auth.signUp({ email, password })[1];
                 if (error) alert(error.message);
                 else {
                     alert("YAY IT WORKED");
