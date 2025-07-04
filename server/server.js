@@ -6,6 +6,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import itemRoutes from './routes/items.js'
 import Item from './models/Item.js'
+import path from 'path';
 
 dotenv.config()
 const app = express()
@@ -13,7 +14,19 @@ app.use(cors())
 app.use(bodyParser.json())
 const PORT = process.env.PORT || 8000
 
+
+
 app.use('/items', itemRoutes);
+
+
+// Serve React static files
+app.use(express.static(path.join(process.cwd(), 'client/build')));
+
+// All other GET requests not handled before will serve React’s index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(process.cwd(), 'client', 'build', 'index.html'));
+});
+
 
 mongoose
     .connect(process.env.MONGO_URL)
