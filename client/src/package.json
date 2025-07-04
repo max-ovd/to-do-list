@@ -15,6 +15,7 @@
         "react-app",
         "react-app/jest"
         ]
-    }
+    },
+    "homepage": "/"
 }
   
