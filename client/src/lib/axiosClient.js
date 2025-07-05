@@ -8,7 +8,7 @@ api.interceptors.request.use(async (config) => {
     const token = session?.access_token;
 
     if (token) {
-        config.baseURL = process.env.DATABSE_URL;
+        config.baseURL = process.env.REACT_APP_DATABSE_URL;
         config.headers.Authorization = `Bearer ${token}`;
     }
 
