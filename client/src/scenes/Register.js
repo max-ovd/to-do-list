@@ -11,7 +11,7 @@ const Register = () => {
         e.preventDefault();
 
         try {
-            const error = await supabase.auth.signUp({ email, password })[2];
+            const { error } = await supabase.auth.signUp({ email, password });
             if (error) alert(error.message);
             else {
                 alert("Thank you for registering");
