@@ -1,82 +1,183 @@
 import express from 'express';
-import Item from '../models/Item.js';
+import TodoItem from '../models/TodoItem.js';
+import List from '../models/List.js';
+import User from '../models/User.js';
 import { authMiddleware } from '../middleware/auth.js';
+import mongoose from 'mongoose';
 
 const router = express.Router()
 
-
 router.get('/', authMiddleware, async (req, res) => {
-    console.log("server side get")
-    if (req.query.checked) {
-        const checked = req.query.checked === 'true';
-        const filteredItems = await Item.find({ userId: req.user.id, checked });
-        res.json(filteredItems);
-    } else {
-        const items = await Item.find({ userId: req.user.id })
-        res.json(items)
+    try {
+        console.log("server: get")
+        const userId = req.user.id;
+        const user = await User.findOne({ "userId": userId });
+
+        if (!user) {
+            return res.status(404).json("user does not exist");
+        }
+
+        // can't remember what this is for right now
+        // const transformedData = user.lists.map(list => 
+        //     ({
+        //         title: list.title,
+        //         items: list.items.map(item => ({
+        //             title: item.title,
+        //             checked: item.checked
+        //         }))
+        //     })
+        // )
+
+
+        return res.status(200).json({ user });
+    } catch (e) {
+        console.log("error: ", e.message);
     }
 })
 
-router.post('/', authMiddleware, async (req, res) => {
-    console.log("server side post")
-    try {
-        const { _id, item, checked } = req.body
-        const userId = req.user.id;
+router.post('/init-account', authMiddleware, async (req, res) => {
+    const userId = req.user.id;
 
-        const itemData = { item, checked, userId }
+    try {
+        const newUser = new User ({ "userId": userId, lists: [] });
+        const listTitle = "To Do List";
+
+        newUser.lists.push({
+            "title": listTitle,
+            "items": []
+        })
+
+        await newUser.save();
+        res.status(201).json({ message: "Account initialized successfully", user: newUser})
+
+    } catch (e) {
+        console.log("Error initializing account: ", e.message);
+    }
+})
+
+router.post('/add-item', authMiddleware, async (req, res) => {
+    const { _id, title, checked, parent } = req.body;
+    const userId = req.user.id;
+
+    console.log("server: adding item");
+
+    try {
+
+        // find user
+        const user = await User.findOne({ "userId": userId }); 
+
+        // create new item
+        const newItem = new TodoItem ({ "title": title, "checked": checked });
 
         if (_id) {
-            itemData._id = _id
+            newItem._id = new mongoose.Types.ObjectId(_id);
         }
-        const newItem = new Item(itemData)
-        await newItem.save()
-        res.status(201).json(newItem)
+        const targetList = user.lists.find(list => list.title === parent);
+
+        targetList.items.push(newItem);
+
+        await user.save();
+        res.status(201).json({ message: "Added item successfully", newUser: user, newItem: newItem });
+
     } catch (e) {
-        console.log("Failed to add item: ", e.message)
-        return res.status(404).json({ error: 'Something went wrong'})
+        console.log("Error posting new item: ", e.message);
     }
 })
 
-router.get('/:itemId', authMiddleware, async (req, res) => {
-    const item = await Item.findOne({ _id: req.params.itemId, userId: req.user.id })
-    res.status(200).json(item)
+router.post('/add-list', authMiddleware, async (req, res) => {
+    const { title } = req.body;
+    const userId = req.user.id;
 
-    if (!item) {
-        return res.status(404).json({ error: 'Item not found or access denied '})
-    }
-})
-
-router.patch('/:itemId', authMiddleware, async (req, res) => {
-    const id = req.params.itemId
-    const updates = req.body
     try {
-        const updatedItem = await Item.findOneAndUpdate({_id: id, userId: req.user.id}, {$set: updates}, {new: true})
-        res.status(200).json(updatedItem)
+        const user = await User.findOne({ "userId": userId });
+        const newList = new List ({title: title, items: []});
+        
+        user.lists.push(newList);
+
+        await user.save();
+        res.status(200).json({ message: "List added successfully", newUser: user, newList: newList});
+
     } catch (e) {
-        console.log("Failed to update item: ", e.message)
-        res.status(404).json("Failed to update item")
+        res.status(500).json({ message: `Error creating a new list: ${e.message}` });
+    }
+
+})
+
+router.post('/delete/:selectedListTitle/:itemId', authMiddleware, async (req, res) => {
+    const itemId = req.params.itemId;
+    const parent = req.params.selectedListTitle;
+    const userId = req.user.id;
+
+    try {
+        const user = await User.findOne({ "userId": userId });
+        const path = user.lists.find(list => list.title === parent);
+
+        let initialItemCount = path.items.length;
+        const deletedItem = path.items.find(item => item._id.toString() === itemId);
+        path.items = path.items.filter(item => item._id.toString() !== itemId);
+
+        if (initialItemCount === path.items.length) {
+            console.warn('Delete Warning: Item to be deleted was not found');
+            return res.status(404).json({ message: "Item to be deleted was not found" })
+        }
+
+        await user.save();
+        res.status(202).json({ message: "Deleted Item Successfully", deletedItem: deletedItem, newUser: user });
+    } catch (e) {
+        console.error("error deleting", e.message);
     }
 })
 
-router.delete('', authMiddleware, async (req, res) => {
+router.delete('/all/:selectedListTitle', authMiddleware, async (req, res) => {
+    const { selectedListTitle } = req.params;
+    const userId = req.user.id;
+
     try {
-        await Item.deleteMany({userId: req.user.id})
-        res.status(200).json({ message: "All items successfully deleted "})
+        const user = await User.findOne({ "userId": userId });
+        const path = user.lists.find(list => list.title === selectedListTitle);
+
+        path.items = [];
+        await user.save();
+
+        res.status(200).json({ message: "Successfully deleted all items", newUser: user })
     } catch (e) {
-        console.log("Failed to delete all messages: ", e.message)
-        res.status(404).json("Failed to delete items")
+        console.error("There was an error clearing the items: ", e.message);
     }
 })
 
-router.delete('/:itemId', authMiddleware, async (req, res) => {
-    const id = req.params.itemId
-    const deletedItem = await Item.findById(id);
+router.patch('/editTask/:itemId', authMiddleware, async (req, res) => {
+    const { itemId } = req.params;
+    const { title, checked, parent } = req.body;
+    const userId = req.user.id;
+
     try {
-        await Item.deleteOne({_id: id, userId: req.user.id})
-        console.log(deletedItem)
-        res.status(200).json(deletedItem)
+        const user = await User.findOne({ "userId": userId });        
+        const path = user.lists.find(list => list.title === parent);
+
+        if (!path) {
+            console.warn("router.patch - the path is undefined");
+        }
+        const updatedItem = new TodoItem ({
+            title: title,
+            checked: checked
+        })
+
+        const item = path.items.id(itemId)
+
+        if (!item) {
+            console.warn("router.patch - item does not exist");
+            return null;
+        }
+
+        item.title = title;
+        item.checked = checked;
+
+        await user.save();
+
+        console.log("Item updated successfully");
+        res.status(200).json({ message: "Successfully saved edit", updatedItem: updatedItem, newUser: user })
     } catch (e) {
-        console.log("Failed to delete message: ", e.message)
+        console.error("There was an error editing the item: ", e.message);
     }
 })
 

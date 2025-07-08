@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import api from "../lib/axiosClient";
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ const Register = () => {
             if (error) alert(error.message);
             else {
                 alert("Thank you for registering");
+                api.post('/items/init-account');
                 navigate('/');
             }
         } catch (e) {

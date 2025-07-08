@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import itemRoutes from './routes/items.js'
-import Item from './models/Item.js'
+import TodoItem from './models/TodoItem.js'
 
 dotenv.config()
 const app = express()

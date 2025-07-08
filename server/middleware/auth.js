@@ -4,18 +4,22 @@ export async function authMiddleware(req, res, next) {
 
     console.log('server side middleware')
 
-    const token = req.headers.authorization?.split(' ')[1];
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
 
-    if (!token) {
-        return res.status(401).json({ error: 'Missing token' });
+        if (!token) {
+            return res.status(401).json({ error: 'Missing token' });
+        }
+
+        const { data, error } = await supabase.auth.getUser(token);
+        if (error || !data?.user) {
+            return res.status(403).json({ error: 'Invalid or expired token' });
+        }
+        
+
+        req.user = data.user;
+        next();
+    } catch (e) {
+        console.log("error authenticating on the server: ", e.message);
     }
-
-    const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data?.user) {
-        return res.status(403).json({ error: 'Invalid or expired token' });
-    }
-    
-
-    req.user = data.user;
-    next();
 }
