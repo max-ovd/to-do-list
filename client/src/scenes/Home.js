@@ -281,6 +281,40 @@ const Home = () => {
 
     }
 
+    const handleThemeToggle = () => {
+        const htmlElement = document.documentElement;
+        const localStorageKey = 'myPicoTheme';
+
+        function setTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+
+            // Sets theme in local storage so it persists
+            localStorage.setItem(localStorageKey, theme);
+        }
+
+        function getTheme() {
+            return htmlElement.getAttribute('data-theme');
+        }
+
+        const savedTheme = localStorage.getItem(localStorageKey);
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            // Check user OS preferences
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(prefersDark ? 'dark' : 'light');
+        }
+
+        const currentTheme = getTheme();
+        if (currentTheme === 'light') {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+
+
+    }
+
     return (
         <div className="container">
             <div className="grid header-content">
@@ -297,14 +331,15 @@ const Home = () => {
                                     <li onClick={ handleUndoDelete }>Undo Delete</li>
                                     <li onClick={ handleAddList }>Add New List</li>
                                     <li onClick={ async () => await supabase.auth.signOut()}>Log Out</li>
+                                    <li onClick={ handleThemeToggle } id="theme-toggle">Light/Dark Mode</li>
                                 </ul>
                             </details>
                         </li>
                     </ul>
                 </nav>
             </div>
-            <div className="grid">
-                <label htmlFor="sort-checkbox">Sort by unchecked?</label>
+            <div className="grid sort-checkbox-container">
+                <label>Sort by unchecked?</label>
                 <input type="checkbox" id="sort-checkbox" checked={ isSorted } onChange={ () => setSorted(prev => !prev) }/>
             </div>
             <input type="search" id="task-search" placeholder="Search tasks..." onChange={(e) => setSearchQuery(e.target.value)} />

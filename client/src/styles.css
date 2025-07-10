@@ -5,6 +5,14 @@
     }
 }
 
+[data-theme="light"] .menu summary[role="button"]{
+    color: slategray;
+}
+
+[data-theme="light"] #delete-task-button {
+    -webkit-filter: invert(80%);
+}
+
 .container {
     margin-top: 7%;
     max-width: 50%;
@@ -30,19 +38,26 @@ small {
 }
 
 .header-content {
-    /* Aligns items on the baseline (good for text + button) */
     align-items: baseline;
-    /* Adjusts the gap between grid items */
-    gap: var(--pico-spacing, 1rem); /* Use Pico's default spacing variable for consistency */
-    justify-content: space-between; /* Pushes Dropdown to left, Menu to right */
-  }
+    gap: var(--pico-spacing, 1rem); 
+    justify-content: space-between; 
+    grid-template-columns: 3fr 1fr;
+}
+
+
+.sort-checkbox-container {
+    gap: 0.5rem;
+    justify-items: start;
+    align-items: center;
+    grid-template-columns: auto 1fr;
+}
   
-  .menu summary[role="button"] {
-    background-color: transparent !important; /* Force no background */
-    border: none !important; /* Remove any border */
-    color: lightcyan !important; /* Keep the text color consistent with Pico's primary link color */
-    box-shadow: none !important; /* Remove any shadow */
-  }
+.menu summary[role="button"] {
+background-color: transparent !important; 
+border: none !important; 
+color: lightcyan; 
+box-shadow: none !important; 
+}
 
 li:hover {
     cursor: pointer;
@@ -54,13 +69,13 @@ li:hover {
     padding-bottom: 0.2rem;
     width: 60%;  
     max-height: 2.5rem;
-      
 }
 
 #add-task-form {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
+    margin-top: 0.6rem;
 }
 
 #add-task-form > button {
@@ -76,4 +91,8 @@ li:hover {
 #delete-task-button {
     height: 0.8rem;
     width: 0.8rem;
+}
+
+img:hover {
+    cursor: pointer;
 }
