@@ -99,13 +99,18 @@ const Home = () => {
         event.preventDefault();
 
         try {
+
             const res = await api.post('/items/add-item', {
                 title: item, 
                 checked: false,
                 parent: selectedListTitle
             });
 
-            const { newUser, newItem } = res.data;
+            const { newItem, newUser, message } = res.data;
+
+            if (res.status !== 201) {
+                return console.errror("Server error when adding new item: ", message);
+            }
 
             setCurrentListItems(prev => [...prev, newItem])
             setFetchedUser(newUser);
