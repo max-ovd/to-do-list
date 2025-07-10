@@ -13,11 +13,7 @@ const ItemList = ({ filteredItems, editingTaskId, editedText, inputElement, hand
             {filteredItems.map(item => (
                 <div className="item-row" key={item._id}>
                     <label>
-                        <input 
-                            type="checkbox" 
-                            checked={ item.checked } 
-                            onChange={ () => toggleItem(item._id) }
-                        />
+                        <input type="checkbox" checked={ item.checked } onChange={ () => toggleItem(item._id) } />
                         { editingTaskId === item._id ? (
                             <input
                                 type="text" 
@@ -36,7 +32,7 @@ const ItemList = ({ filteredItems, editingTaskId, editedText, inputElement, hand
                             />
                         )
                         : (
-                            <span onDoubleClick={ () => startEditing(item._id) }>
+                            <span onDoubleClick={ (e) => { e.preventDefault(); startEditing(item._id); }}>
                                 { item.title.length > 40 ? item.title.slice(0, 40) + "..." : item.title }
                             </span>
                     )}
