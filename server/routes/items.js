@@ -4,34 +4,26 @@ import List from '../models/List.js';
 import User from '../models/User.js';
 import { authMiddleware } from '../middleware/auth.js';
 import mongoose from 'mongoose';
+import { validateAddItem, validateAddList } from '../validator.js';
+    
 
 const router = express.Router()
 
+
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        console.log("server: get")
+
         const userId = req.user.id;
         const user = await User.findOne({ "userId": userId });
 
         if (!user) {
-            return res.status(404).json("user does not exist");
+            return res.status(404).json({ message: "User does not exist" });
         }
-
-        // can't remember what this is for right now
-        // const transformedData = user.lists.map(list => 
-        //     ({
-        //         title: list.title,
-        //         items: list.items.map(item => ({
-        //             title: item.title,
-        //             checked: item.checked
-        //         }))
-        //     })
-        // )
-
 
         return res.status(200).json({ user });
     } catch (e) {
         console.log("error: ", e.message);
+        return res.status(500).json({ message: "Something went wrong" })
     }
 })
 
@@ -52,6 +44,7 @@ router.post('/init-account', authMiddleware, async (req, res) => {
 
     } catch (e) {
         console.log("Error initializing account: ", e.message);
+        return res.status(500).json({ message: "Something went wrong" });
     }
 })
 
@@ -62,6 +55,12 @@ router.post('/add-item', authMiddleware, async (req, res) => {
     console.log("server: adding item");
 
     try {
+        const { error } = validateAddItem(req.body);
+
+        if (error) {
+            console.log("Error with joi backend", error);
+            return res.status(400).json({ message: "Bad request" });
+        }
 
         // find user
         const user = await User.findOne({ "userId": userId }); 
@@ -81,6 +80,7 @@ router.post('/add-item', authMiddleware, async (req, res) => {
 
     } catch (e) {
         console.log("Error posting new item: ", e.message);
+        return res.status(500).json({ message: "Something went wrong" });
     }
 })
 
@@ -89,6 +89,12 @@ router.post('/add-list', authMiddleware, async (req, res) => {
     const userId = req.user.id;
 
     try {
+        const { error } = validateAddList(req.body);
+
+        if (error) {
+            return res.status(400).json({ message: "Bad request" });
+        }
+
         const user = await User.findOne({ "userId": userId });
         const newList = new List ({title: title, items: []});
         
@@ -98,7 +104,7 @@ router.post('/add-list', authMiddleware, async (req, res) => {
         res.status(200).json({ message: "List added successfully", newUser: user, newList: newList});
 
     } catch (e) {
-        res.status(500).json({ message: `Error creating a new list: ${e.message}` });
+        res.status(500).json({ message: `Error creating a new list: ${e.message}` }); 
     }
 
 })
@@ -125,6 +131,7 @@ router.post('/delete/:selectedListTitle/:itemId', authMiddleware, async (req, re
         res.status(202).json({ message: "Deleted Item Successfully", deletedItem: deletedItem, newUser: user });
     } catch (e) {
         console.error("error deleting", e.message);
+        return res.status(500).json({ message: "Something went wrong" });
     }
 })
 
@@ -142,6 +149,7 @@ router.delete('/all/:selectedListTitle', authMiddleware, async (req, res) => {
         res.status(200).json({ message: "Successfully deleted all items", newUser: user })
     } catch (e) {
         console.error("There was an error clearing the items: ", e.message);
+        return res.status(500).json({ message: "Something went wrong" });
     }
 })
 
@@ -151,6 +159,12 @@ router.patch('/editTask/:itemId', authMiddleware, async (req, res) => {
     const userId = req.user.id;
 
     try {
+        const { error } = validateAddItem(req.body);
+
+        if (error) {
+            return res.status(400).json({ message: "Bad request" });
+        }
+
         const user = await User.findOne({ "userId": userId });        
         const path = user.lists.find(list => list.title === parent);
 
@@ -178,6 +192,7 @@ router.patch('/editTask/:itemId', authMiddleware, async (req, res) => {
         res.status(200).json({ message: "Successfully saved edit", updatedItem: updatedItem, newUser: user })
     } catch (e) {
         console.error("There was an error editing the item: ", e.message);
+        return res.status(500).json({ message: "Something went wrong" });
     }
 })
 

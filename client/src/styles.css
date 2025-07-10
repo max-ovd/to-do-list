@@ -1,0 +1,72 @@
+.container {
+    margin-top: 7%;
+    max-width: 50%;
+}
+
+small {
+    color: rgb(172, 185, 191);
+}
+
+.submit-button {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.9rem;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.item-row > img {
+    margin-right: 1.5rem;
+}
+
+.header-content {
+    /* Aligns items on the baseline (good for text + button) */
+    align-items: baseline;
+    /* Adjusts the gap between grid items */
+    gap: var(--pico-spacing, 1rem); /* Use Pico's default spacing variable for consistency */
+    justify-content: space-between; /* Pushes Dropdown to left, Menu to right */
+  }
+  
+  .menu summary[role="button"] {
+    background-color: transparent !important; /* Force no background */
+    border: none !important; /* Remove any border */
+    color: lightcyan !important; /* Keep the text color consistent with Pico's primary link color */
+    box-shadow: none !important; /* Remove any shadow */
+  }
+
+li:hover {
+    cursor: pointer;
+}
+
+#task-search {
+    font-size: 0.8rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    width: 60%;  
+    max-height: 2.5rem;
+      
+}
+
+#add-task-form {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+#add-task-form > button {
+    flex: 0 0 auto;
+    max-width: 4rem;
+    font-size: 1rem;
+}
+
+#add-task-form > input {
+    max-height: 3.5rem;
+}
+
+#delete-task-button {
+    height: 0.8rem;
+    width: 0.8rem;
+}

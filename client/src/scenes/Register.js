@@ -25,14 +25,15 @@ const Register = () => {
     }
 
     return (
-        <div className="Register-form">
-            <h2>Register</h2>
+        <section className="container">
             <form onSubmit={ handleSubmit }>     
+                <h3>Register</h3>
+
                 <div className="input-field">
-                    <label>email</label>
                     <input 
+                        autoFocus
                         type="email"
-                        placeholder="placeholder"
+                        placeholder="Email"
                         value={ email }
                         onChange={(e) => setEmail(e.target.value)}
                         required={ true }
@@ -40,19 +41,20 @@ const Register = () => {
                 </div>
 
                 <div className="input-field">
-                    <label>password</label>
                     <input 
                         type="password"
+                        placeholder="Password"
                         value={ password }
                         onChange={(e) => setPassword(e.target.value)}
                         required={ true }
                     />
                 </div>
                 
-                <button>Submit</button>
-                <a href="/login">Login</a>
+                <button class="secondary submit-button">Submit</button>
+                <br></br>
+                <small>Have an account? <a href="/login">Login</a> instead</small>
             </form>
-        </div>
+        </section>
     )
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useLayoutEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import ItemList from "./ItemList";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -61,8 +61,6 @@ const Home = () => {
 
 
     useEffect(() => {
-        console.log("USER: ", fetchedUser);
-
         if (!fetchedUser) {
             return console.warn("fetchedUser is not defined yet");
         }
@@ -109,8 +107,8 @@ const Home = () => {
 
             const { newUser, newItem } = res.data;
 
-            setFetchedUser(newUser);
             setCurrentListItems(prev => [...prev, newItem])
+            setFetchedUser(newUser);
             setItem('');
 
         } catch (e) {
@@ -224,17 +222,27 @@ const Home = () => {
     const handleUndoDelete = async () => {
         if (lastDeletedItem === null) return;
         const updatedItems = [...currentListItems, lastDeletedItem];
-        setCurrentListItems(updatedItems)
-        setLastDeletedItem(null);
 
         try {
-            await api.post('/items/add-item', {
+            setCurrentListItems(updatedItems)
+
+            const res = await api.post('/items/add-item', {
                 _id: lastDeletedItem._id,
                 title: lastDeletedItem.title,
                 checked: lastDeletedItem.checked,
                 parent: selectedListTitle
             })
             
+            const { newItem, newUser, message } = res.data;
+
+            if (res.status !== 201) {
+                setCurrentListItems(prev => prev.filter(item => item._id !== newItem._id))
+                return console.error("Server error while undoing delete: ", message);
+            }
+
+            setFetchedUser(newUser);
+            setLastDeletedItem(null);
+
         } catch (e) {
             console.log('Failed to undo message: ', e.message);
         }
@@ -260,7 +268,7 @@ const Home = () => {
             if (res.status === 200) {
                 console.log(res.data.message);
             } else {
-                console.error(res.data.message)
+                console.error(res.data.message);
             }
         } catch (e) {
             console.error("There was an error adding a list: ", e.message);
@@ -269,15 +277,32 @@ const Home = () => {
     }
 
     return (
-        <div className="to-do-list">
-            <Dropdown allListTitles={ allListTitles } selectedListTitle={ selectedListTitle } setSelectedListTitle={ setSelectedListTitle } />
-
-            <label>Sort by unchecked?</label>
-            <input type="checkbox" checked={ isSorted } onChange={ () => setSorted(prev => !prev) }/>
-
-            <div className="search-bar">
-                <input type="text" placeholder="Search tasks" onChange={(e) => setSearchQuery(e.target.value)} />
+        <div className="container">
+            <div className="grid header-content">
+                <div className="col-auto">
+                    <Dropdown allListTitles={ allListTitles } selectedListTitle={ selectedListTitle } setSelectedListTitle={ setSelectedListTitle } />
+                </div>
+                <nav className="col-auto">
+                    <ul>
+                        <li>
+                            <details className="menu dropdown">
+                                <summary role="button" className="secondary">Menu</summary>
+                                <ul>
+                                    <li onClick={ handleClear }>Clear</li>
+                                    <li onClick={ handleUndoDelete }>Undo Delete</li>
+                                    <li onClick={ handleAddList }>Add New List</li>
+                                    <li onClick={ async () => await supabase.auth.signOut()}>Log Out</li>
+                                </ul>
+                            </details>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+            <div className="grid">
+                <label htmlFor="sort-checkbox">Sort by unchecked?</label>
+                <input type="checkbox" id="sort-checkbox" checked={ isSorted } onChange={ () => setSorted(prev => !prev) }/>
+            </div>
+            <input type="search" id="task-search" placeholder="Search tasks..." onChange={(e) => setSearchQuery(e.target.value)} />
 
 
             {<ItemList 
@@ -296,19 +321,18 @@ const Home = () => {
                 }}
             />}
 
-            <form onSubmit={handleSubmit}>
+            <form id="add-task-form" onSubmit={ handleSubmit }>
                 <input 
                     type="text"
+                    placeholder="Add task..."
                     value={item}
                     onChange={(e) => setItem(e.target.value) } 
                     required
                 />
-                <button>Add</button>
+                <button type="submit" className="outline">Add</button>
             </form>
-            <button onClick={ handleClear }>Clear</button>
-            <button onClick={ handleUndoDelete }>Undo Delete</button>
-            <button onClick={ async () => await supabase.auth.signOut()}>Log Out</button>
-            <button onClick={ handleAddList }>Add a list!</button>
+
+
         </div>
     );
 };

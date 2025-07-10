@@ -1,32 +1,32 @@
-import { useState } from "react";
+import { useRef } from "react";
 
 
 const Dropdown = ({ allListTitles, selectedListTitle, setSelectedListTitle }) => {
     
-    const [trigger, setTrigger] = useState(false);
+    const dropdownRef = useRef(null);
+
 
     const handleNewListSelection = (item) => {
-        setTrigger(!trigger);
         setSelectedListTitle(item);
+        dropdownRef.current.open = false;
     }
 
     return (
-        <div className="dropdown">
-            <button className="dropbtn" onClick={() => {setTrigger(!trigger)}}>
-                { selectedListTitle }
-            </button>
-
-
-               {trigger && 
-               allListTitles.filter(item => item !== selectedListTitle)
-               .map((item, index) => (
-                    <div key={index} className="dropdown-content">
-                        <button onClick={() => handleNewListSelection(item)}>
+        <>
+            <details className="dropdown" ref={ dropdownRef }>
+                <summary role="button" className="secondary">
+                    { selectedListTitle }
+                </summary>
+                <ul>
+                {allListTitles.filter(item => item !== selectedListTitle)
+                .map((item, index) => (
+                        <li key={ index } onClick={() => handleNewListSelection(item)}>
                             { item }
-                        </button>
-                    </div>
-                ))}
-        </div>
+                        </li>
+                    ))}
+                </ul>
+            </details>
+        </>
     )
 }
 

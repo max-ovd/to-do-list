@@ -25,14 +25,15 @@ const Login = () => {
     }
 
     return (
-        <div className="login-form">
-            <h2>Login</h2>
-            <form onSubmit={ handleSubmit }>     
+        <section className="container">
+            <form onSubmit={ handleSubmit }>
+                <h3>Login</h3>
+    
                 <div className="input-field">
-                    <label>email</label>
                     <input 
+                        autoFocus
                         type="email"
-                        placeholder="placeholder"
+                        placeholder="Email"
                         value={ email }
                         onChange={(e) => setEmail(e.target.value)}
                         required={ true }
@@ -40,19 +41,20 @@ const Login = () => {
                 </div>
 
                 <div className="input-field">
-                    <label>password</label>
                     <input 
-                        type="password"
+                        type="Password"
+                        placeholder="Password"
                         value={ password }
                         onChange={(e) => setPassword(e.target.value)}
                         required={ true }
                     />
                 </div>
                 
-                <button>Submit</button>
-                <a href="/register">Register</a>
+                <button class="secondary submit-button">Submit</button>
+                <br></br>
+                <small>First time user? <a href="/register">Register</a> instead</small>
             </form>
-        </div>
+        </section>
     )
 
 }

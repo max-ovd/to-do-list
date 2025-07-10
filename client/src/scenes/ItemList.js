@@ -4,16 +4,15 @@ import { ReactSortable } from 'react-sortablejs';
 const ItemList = ({ filteredItems, editingTaskId, editedText, inputElement, handlers }) => {
     const { startEditing, setFilteredItems, setEditedText, saveEdit, toggleItem, cancelEdit, deleteItem } = handlers;
     return (
-        <div className="item-list">
-
-            <ReactSortable
-                tag="div"
-                list={ filteredItems }
-                setList={ setFilteredItems }
-                animation={ 150 }
-                >
-                {filteredItems.map(item => (
-                    <div className="item-content" key={ item._id }>
+        <ReactSortable
+            tag="div"
+            list={ filteredItems }
+            setList={ setFilteredItems }
+            animation={ 150 }
+            >
+            {filteredItems.map(item => (
+                <div className="item-row" key={item._id}>
+                    <label>
                         <input 
                             type="checkbox" 
                             checked={ item.checked } 
@@ -38,14 +37,14 @@ const ItemList = ({ filteredItems, editingTaskId, editedText, inputElement, hand
                         )
                         : (
                             <span onDoubleClick={ () => startEditing(item._id) }>
-                                { item.title.length > 35 ? item.title.slice(0, 35) + "..." : item.title }
+                                { item.title.length > 40 ? item.title.slice(0, 40) + "..." : item.title }
                             </span>
                     )}
-                    <input type="image" src="/trashIcon.png" alt="delete" style={{ width: "17px", height: "17px"}} onClick={() => deleteItem(item._id)} />
-                    </div>
-                ))}
-            </ReactSortable>
-        </div>
+                    </label>
+                    <img src="/x-button.png" id="delete-task-button" alt="delete" onClick={() => deleteItem(item._id)} />
+                </div>
+            ))}
+        </ReactSortable>
     );
 };
 export default ItemList;
