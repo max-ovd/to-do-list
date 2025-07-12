@@ -3,6 +3,15 @@
         max-width: 80% !important;
         margin-top: 15% !important;
     }
+    #edit-task-field {
+        width: 20rem !important;
+    }
+}
+
+@media only screen and (min-width: 900px) {
+    #edit-task-field {
+        width: 30rem !important;
+    }
 }
 
 [data-theme="light"] .menu summary[role="button"]{
@@ -17,6 +26,7 @@
     margin-top: 7%;
     max-width: 50%;
 }
+
 
 small {
     color: rgb(172, 185, 191);
@@ -33,6 +43,7 @@ small {
     gap: 1rem;
     align-items: center;
 }
+
 
 .item-row label {
     display: flex;

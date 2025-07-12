@@ -57,6 +57,7 @@ const Home = () => {
 
     useEffect(() => {
         fetchItems();
+        handleThemeToggle();
     }, [])
 
 

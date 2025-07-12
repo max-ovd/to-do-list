@@ -16,7 +16,8 @@ const ItemList = ({ filteredItems, editingTaskId, editedText, inputElement, hand
                         <input type="checkbox" checked={ item.checked } onChange={ () => toggleItem(item._id) } />
                         { editingTaskId === item._id ? (
                             <input
-                                type="text" 
+                                type="text"
+                                id="edit-task-field"
                                 value={ editedText } 
                                 ref={ inputElement }
                                 onChange={ (e) => setEditedText(e.target.value) }
