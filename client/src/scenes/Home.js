@@ -309,9 +309,9 @@ const Home = () => {
 
         const currentTheme = getTheme();
         if (currentTheme === 'light') {
-            setTheme('dark');
-        } else {
             setTheme('light');
+        } else {
+            setTheme('dark');
         }
 
 
