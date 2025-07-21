@@ -308,10 +308,11 @@ const Home = () => {
         }
 
         const currentTheme = getTheme();
+
         if (currentTheme === 'light') {
-            setTheme('light');
-        } else {
             setTheme('dark');
+        } else {
+            setTheme('light');
         }
 
 
