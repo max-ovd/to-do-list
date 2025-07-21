@@ -57,7 +57,7 @@ const Home = () => {
 
     useEffect(() => {
         fetchItems();
-        handleThemeToggle();
+        setThemeOnMount();
     }, [])
 
 
@@ -283,6 +283,27 @@ const Home = () => {
 
     }
 
+    const setThemeOnMount = () => {
+        const htmlElement = document.documentElement;
+        const localStorageKey = 'myPicoTheme';
+
+        function setTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+
+            // Sets theme in local storage so it persists
+            localStorage.setItem(localStorageKey, theme);
+        }
+
+        const savedTheme = localStorage.getItem(localStorageKey);
+
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(prefersDark ? 'dark' : 'light');
+        }
+    }
+
     const handleThemeToggle = () => {
         const htmlElement = document.documentElement;
         const localStorageKey = 'myPicoTheme';
@@ -296,15 +317,6 @@ const Home = () => {
 
         function getTheme() {
             return htmlElement.getAttribute('data-theme');
-        }
-
-        const savedTheme = localStorage.getItem(localStorageKey);
-        if (savedTheme) {
-            setTheme(savedTheme);
-        } else {
-            // Check user OS preferences
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            setTheme(prefersDark ? 'dark' : 'light');
         }
 
         const currentTheme = getTheme();
