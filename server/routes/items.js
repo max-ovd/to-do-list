@@ -17,7 +17,12 @@ router.get('/', authMiddleware, async (req, res) => {
         const user = await User.findOne({ "userId": userId });
 
         if (!user) {
-            return res.status(404).json({ message: "User does not exist" });
+            return res.status(404).json({ 
+                message: "User does not exist",
+                debug_info: {
+                    lookedFor: userId
+                }
+            });
         }
 
         return res.status(200).json({ user });
